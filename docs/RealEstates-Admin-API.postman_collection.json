@@ -1,0 +1,399 @@
+{
+    "info": {
+        "_postman_id": "a1b2c3d4-e5f6-7890-abcd-ef0987654321",
+        "name": "RealEstates – Admin API",
+        "description": "Admin-only endpoints. Steps:\n1. Set {{base_url}} to http://localhost:8000\n2. Call 'Login as Admin' and copy the token into {{admin_token}}\n3. All admin requests use {{admin_token}} for Authorization.",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "variable": [
+        { "key": "base_url",    "value": "http://localhost:8000" },
+        { "key": "admin_token", "value": "" },
+        { "key": "category_id", "value": "1" },
+        { "key": "property_id", "value": "1" },
+        { "key": "agent_id",    "value": "1" },
+        { "key": "user_id",     "value": "2" },
+        { "key": "order_id",    "value": "1" }
+    ],
+    "item": [
+        {
+            "name": "Auth",
+            "item": [
+                {
+                    "name": "Login as Admin",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            { "key": "Accept",       "value": "application/json" },
+                            { "key": "Content-Type", "value": "application/json" }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"password\"\n}",
+                            "options": { "raw": { "language": "json" } }
+                        },
+                        "url": "{{base_url}}/api/v1/auth/login"
+                    }
+                },
+                {
+                    "name": "Logout",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            { "key": "Accept",         "value": "application/json" },
+                            { "key": "Authorization",  "value": "Bearer {{admin_token}}" }
+                        ],
+                        "url": "{{base_url}}/api/v1/auth/logout"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Dashboard",
+            "item": [
+                {
+                    "name": "Dashboard KPIs",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            { "key": "Accept",        "value": "application/json" },
+                            { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+                        ],
+                        "url": "{{base_url}}/api/v1/admin/dashboard"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Categories",
+            "item": [
+                {
+                    "name": "List Categories",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            { "key": "Accept",        "value": "application/json" },
+                            { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/v1/admin/categories?per_page=50",
+                            "query": [
+                                { "key": "per_page", "value": "50" }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Create Category",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            { "key": "Accept",        "value": "application/json" },
+                            { "key": "Content-Type",  "value": "application/json" },
+                            { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"name\": \"Villas\",\n  \"slug\": \"villas\",\n  \"description\": \"Luxury villa properties\",\n  \"sort_order\": 1\n}",
+                            "options": { "raw": { "language": "json" } }
+                        },
+                        "url": "{{base_url}}/api/v1/admin/categories"
+                    }
+                },
+                {
+                    "name": "Get Category",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            { "key": "Accept",        "value": "application/json" },
+                            { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+                        ],
+                        "url": "{{base_url}}/api/v1/admin/categories/{{category_id}}"
+                    }
+                },
+                {
+                    "name": "Update Category",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            { "key": "Accept",        "value": "application/json" },
+                            { "key": "Content-Type",  "value": "application/json" },
+                            { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"name\": \"Villas Updated\",\n  \"sort_order\": 2\n}",
+                            "options": { "raw": { "language": "json" } }
+                        },
+                        "url": "{{base_url}}/api/v1/admin/categories/{{category_id}}"
+                    }
+                },
+                {
+                    "name": "Delete Category",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            { "key": "Accept",        "value": "application/json" },
+                            { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+                        ],
+                        "url": "{{base_url}}/api/v1/admin/categories/{{category_id}}"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Properties",
+            "item": [
+                {
+                    "name": "List Properties",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            { "key": "Accept",        "value": "application/json" },
+                            { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/v1/admin/properties?per_page=20",
+                            "query": [
+                                { "key": "per_page", "value": "20" },
+                                { "key": "status",   "value": "published", "disabled": true }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Create Property",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            { "key": "Accept",        "value": "application/json" },
+                            { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+                        ],
+                        "body": {
+                            "mode": "formdata",
+                            "formdata": [
+                                { "key": "category_id",      "value": "1",           "type": "text" },
+                                { "key": "assigned_agent_id","value": "1",           "type": "text" },
+                                { "key": "title",            "value": "Modern Flat", "type": "text" },
+                                { "key": "description",      "value": "A beautiful modern flat in the city center.", "type": "text" },
+                                { "key": "price",            "value": "250000",      "type": "text" },
+                                { "key": "listing_type",     "value": "sale",        "type": "text", "description": "sale or rent" },
+                                { "key": "bedrooms",         "value": "3",           "type": "text" },
+                                { "key": "bathrooms",        "value": "2",           "type": "text" },
+                                { "key": "kitchens",         "value": "1",           "type": "text" },
+                                { "key": "status",           "value": "published",   "type": "text", "description": "draft or published" },
+                                { "key": "is_featured",      "value": "false",       "type": "text" },
+                                { "key": "address",          "value": "123 Main St, Cairo", "type": "text" },
+                                { "key": "latitude",         "value": "30.0444",     "type": "text" },
+                                { "key": "longitude",        "value": "31.2357",     "type": "text" },
+                                { "key": "images[]",         "src": "",              "type": "file", "description": "Upload one or more image files" }
+                            ]
+                        },
+                        "url": "{{base_url}}/api/v1/admin/properties"
+                    }
+                },
+                {
+                    "name": "Get Property",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            { "key": "Accept",        "value": "application/json" },
+                            { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+                        ],
+                        "url": "{{base_url}}/api/v1/admin/properties/{{property_id}}"
+                    }
+                },
+                {
+                    "name": "Update Property",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            { "key": "Accept",        "value": "application/json" },
+                            { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+                        ],
+                        "body": {
+                            "mode": "formdata",
+                            "formdata": [
+                                { "key": "_method",      "value": "PUT",          "type": "text" },
+                                { "key": "title",        "value": "Updated Title","type": "text" },
+                                { "key": "price",        "value": "275000",       "type": "text" },
+                                { "key": "status",       "value": "published",    "type": "text" },
+                                { "key": "images[]",     "src": "",               "type": "file", "disabled": true }
+                            ]
+                        },
+                        "url": "{{base_url}}/api/v1/admin/properties/{{property_id}}"
+                    }
+                },
+                {
+                    "name": "Delete Property",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            { "key": "Accept",        "value": "application/json" },
+                            { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+                        ],
+                        "url": "{{base_url}}/api/v1/admin/properties/{{property_id}}"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Agents",
+            "item": [
+                {
+                    "name": "List Agents",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            { "key": "Accept",        "value": "application/json" },
+                            { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/v1/admin/agents?per_page=50",
+                            "query": [
+                                { "key": "per_page", "value": "50" }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Create Agent",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            { "key": "Accept",        "value": "application/json" },
+                            { "key": "Content-Type",  "value": "application/json" },
+                            { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"user_id\": {{user_id}},\n  \"title\": \"Senior Agent\",\n  \"bio\": \"Experienced real estate agent with 10 years in the market.\",\n  \"license_number\": \"RE-001234\",\n  \"company\": \"Prime Realty\"\n}",
+                            "options": { "raw": { "language": "json" } }
+                        },
+                        "url": "{{base_url}}/api/v1/admin/agents"
+                    }
+                },
+                {
+                    "name": "Get Agent",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            { "key": "Accept",        "value": "application/json" },
+                            { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+                        ],
+                        "url": "{{base_url}}/api/v1/admin/agents/{{agent_id}}"
+                    }
+                },
+                {
+                    "name": "Update Agent",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            { "key": "Accept",        "value": "application/json" },
+                            { "key": "Content-Type",  "value": "application/json" },
+                            { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"title\": \"Lead Agent\",\n  \"bio\": \"Updated bio text.\",\n  \"company\": \"Elite Realty\"\n}",
+                            "options": { "raw": { "language": "json" } }
+                        },
+                        "url": "{{base_url}}/api/v1/admin/agents/{{agent_id}}"
+                    }
+                },
+                {
+                    "name": "Delete Agent",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            { "key": "Accept",        "value": "application/json" },
+                            { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+                        ],
+                        "url": "{{base_url}}/api/v1/admin/agents/{{agent_id}}"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Users",
+            "item": [
+                {
+                    "name": "List Users",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            { "key": "Accept",        "value": "application/json" },
+                            { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/v1/admin/users?per_page=30",
+                            "query": [
+                                { "key": "per_page", "value": "30" }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get User",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            { "key": "Accept",        "value": "application/json" },
+                            { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+                        ],
+                        "url": "{{base_url}}/api/v1/admin/users/{{user_id}}"
+                    }
+                },
+                {
+                    "name": "Block / Unblock User",
+                    "request": {
+                        "method": "PATCH",
+                        "header": [
+                            { "key": "Accept",        "value": "application/json" },
+                            { "key": "Content-Type",  "value": "application/json" },
+                            { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"is_blocked\": true\n}",
+                            "options": { "raw": { "language": "json" } }
+                        },
+                        "url": "{{base_url}}/api/v1/admin/users/{{user_id}}/block"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Orders",
+            "item": [
+                {
+                    "name": "List Orders",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            { "key": "Accept",        "value": "application/json" },
+                            { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/v1/admin/orders?per_page=30",
+                            "query": [
+                                { "key": "per_page", "value": "30" },
+                                { "key": "status",   "value": "paid", "disabled": true, "description": "pending | paid | cancelled" }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Order",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            { "key": "Accept",        "value": "application/json" },
+                            { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+                        ],
+                        "url": "{{base_url}}/api/v1/admin/orders/{{order_id}}"
+                    }
+                }
+            ]
+        }
+    ]
+}

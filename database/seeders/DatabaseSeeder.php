@@ -8,6 +8,7 @@ use App\Enums\UserRole;
 use App\Models\Agent;
 use App\Models\Category;
 use App\Models\Property;
+use App\Models\PropertyImage;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -57,7 +58,7 @@ class DatabaseSeeder extends Seeder
             'sort_order' => 2,
         ]);
 
-        Property::query()->create([
+        $p1 = Property::query()->create([
             'category_id' => $residential->id,
             'assigned_agent_id' => $agent->id,
             'title' => 'Sunny Downtown Apartment',
@@ -75,7 +76,13 @@ class DatabaseSeeder extends Seeder
             'address' => 'Downtown',
         ]);
 
-        Property::query()->create([
+        $this->seedImages($p1->id, [
+            'https://placehold.co/800x600/e8f4f8/2c7be5?text=Downtown+Apt+1',
+            'https://placehold.co/800x600/f0f8e8/2c7be5?text=Downtown+Apt+2',
+            'https://placehold.co/800x600/f8f0e8/2c7be5?text=Downtown+Apt+3',
+        ]);
+
+        $p2 = Property::query()->create([
             'category_id' => $residential->id,
             'assigned_agent_id' => $agent->id,
             'title' => 'Waterfront Rental',
@@ -93,7 +100,12 @@ class DatabaseSeeder extends Seeder
             'address' => 'Waterfront',
         ]);
 
-        Property::query()->create([
+        $this->seedImages($p2->id, [
+            'https://placehold.co/800x600/e8f0f8/27ae60?text=Waterfront+1',
+            'https://placehold.co/800x600/f8e8f0/27ae60?text=Waterfront+2',
+        ]);
+
+        $p3 = Property::query()->create([
             'category_id' => $commercial->id,
             'assigned_agent_id' => $agent->id,
             'title' => 'Corner Retail Unit',
@@ -111,6 +123,12 @@ class DatabaseSeeder extends Seeder
             'address' => 'Main Street',
         ]);
 
+        $this->seedImages($p3->id, [
+            'https://placehold.co/800x600/f8f8e8/e67e22?text=Retail+Unit+1',
+            'https://placehold.co/800x600/e8f8f8/e67e22?text=Retail+Unit+2',
+            'https://placehold.co/800x600/f8e8f8/e67e22?text=Retail+Unit+3',
+        ]);
+
         Property::query()->create([
             'category_id' => $residential->id,
             'title' => 'Draft Listing (not public)',
@@ -124,5 +142,16 @@ class DatabaseSeeder extends Seeder
             'is_featured' => false,
             'sales_count' => 0,
         ]);
+    }
+
+    private function seedImages(int $propertyId, array $urls): void
+    {
+        foreach ($urls as $index => $url) {
+            PropertyImage::query()->create([
+                'property_id' => $propertyId,
+                'path' => $url,
+                'sort_order' => $index,
+            ]);
+        }
     }
 }
