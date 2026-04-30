@@ -17,51 +17,56 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        User::query()->create([
-            'name' => 'Admin',
-            'email' => 'admin@example.com',
-            'password' => Hash::make('password'),
-            'role' => UserRole::Admin,
-        ]);
+        User::query()->firstOrCreate(
+            ['email' => 'admin@example.com'],
+            [
+                'name' => 'Admin',
+                'password' => Hash::make('password'),
+                'role' => UserRole::Admin,
+            ]
+        );
 
-        User::query()->create([
-            'name' => 'Demo Buyer',
-            'email' => 'buyer@example.com',
-            'password' => Hash::make('password'),
-            'role' => UserRole::User,
-            'location' => 'Cairo',
-        ]);
+        User::query()->firstOrCreate(
+            ['email' => 'buyer@example.com'],
+            [
+                'name' => 'Demo Buyer',
+                'password' => Hash::make('password'),
+                'role' => UserRole::User,
+                'location' => 'Cairo',
+            ]
+        );
 
-        $agentUser = User::query()->create([
-            'name' => 'Demo Agent',
-            'email' => 'agent@example.com',
-            'password' => Hash::make('password'),
-            'role' => UserRole::User,
-        ]);
+        $agentUser = User::query()->firstOrCreate(
+            ['email' => 'agent@example.com'],
+            [
+                'name' => 'Demo Agent',
+                'password' => Hash::make('password'),
+                'role' => UserRole::User,
+            ]
+        );
 
-        $agent = Agent::query()->create([
-            'user_id' => $agentUser->id,
-            'title' => 'Senior Agent',
-            'bio' => 'Helping you find the right property.',
-            'company' => 'Demo Realty',
-        ]);
+        $agent = Agent::query()->firstOrCreate(
+            ['user_id' => $agentUser->id],
+            [
+                'title' => 'Senior Agent',
+                'bio' => 'Helping you find the right property.',
+                'company' => 'Demo Realty',
+            ]
+        );
 
-        $residential = Category::query()->create([
-            'name' => 'Residential',
-            'description' => 'Homes and apartments',
-            'sort_order' => 1,
-        ]);
+        $residential = Category::query()->firstOrCreate(
+            ['name' => 'Residential'],
+            ['description' => 'Homes and apartments', 'sort_order' => 1]
+        );
 
-        $commercial = Category::query()->create([
-            'name' => 'Commercial',
-            'description' => 'Offices and retail',
-            'sort_order' => 2,
-        ]);
+        $commercial = Category::query()->firstOrCreate(
+            ['name' => 'Commercial'],
+            ['description' => 'Offices and retail', 'sort_order' => 2]
+        );
 
-        $p1 = Property::query()->create([
+        [$p1, $p1Created] = $this->firstOrCreateProperty('Sunny Downtown Apartment', [
             'category_id' => $residential->id,
             'assigned_agent_id' => $agent->id,
-            'title' => 'Sunny Downtown Apartment',
             'description' => 'Bright 2-bedroom apartment near transit.',
             'price' => 325000,
             'listing_type' => ListingType::Sale,
@@ -76,16 +81,17 @@ class DatabaseSeeder extends Seeder
             'address' => 'Downtown',
         ]);
 
-        $this->seedImages($p1->id, [
-            'https://placehold.co/800x600/e8f4f8/2c7be5?text=Downtown+Apt+1',
-            'https://placehold.co/800x600/f0f8e8/2c7be5?text=Downtown+Apt+2',
-            'https://placehold.co/800x600/f8f0e8/2c7be5?text=Downtown+Apt+3',
-        ]);
+        if ($p1Created) {
+            $this->seedImages($p1->id, [
+                'https://placehold.co/800x600/e8f4f8/2c7be5?text=Downtown+Apt+1',
+                'https://placehold.co/800x600/f0f8e8/2c7be5?text=Downtown+Apt+2',
+                'https://placehold.co/800x600/f8f0e8/2c7be5?text=Downtown+Apt+3',
+            ]);
+        }
 
-        $p2 = Property::query()->create([
+        [$p2, $p2Created] = $this->firstOrCreateProperty('Waterfront Rental', [
             'category_id' => $residential->id,
             'assigned_agent_id' => $agent->id,
-            'title' => 'Waterfront Rental',
             'description' => 'Furnished rental with marina views.',
             'price' => 2500,
             'listing_type' => ListingType::Rent,
@@ -100,15 +106,16 @@ class DatabaseSeeder extends Seeder
             'address' => 'Waterfront',
         ]);
 
-        $this->seedImages($p2->id, [
-            'https://placehold.co/800x600/e8f0f8/27ae60?text=Waterfront+1',
-            'https://placehold.co/800x600/f8e8f0/27ae60?text=Waterfront+2',
-        ]);
+        if ($p2Created) {
+            $this->seedImages($p2->id, [
+                'https://placehold.co/800x600/e8f0f8/27ae60?text=Waterfront+1',
+                'https://placehold.co/800x600/f8e8f0/27ae60?text=Waterfront+2',
+            ]);
+        }
 
-        $p3 = Property::query()->create([
+        [$p3, $p3Created] = $this->firstOrCreateProperty('Corner Retail Unit', [
             'category_id' => $commercial->id,
             'assigned_agent_id' => $agent->id,
-            'title' => 'Corner Retail Unit',
             'description' => 'High foot traffic corner space.',
             'price' => 890000,
             'listing_type' => ListingType::Sale,
@@ -123,15 +130,16 @@ class DatabaseSeeder extends Seeder
             'address' => 'Main Street',
         ]);
 
-        $this->seedImages($p3->id, [
-            'https://placehold.co/800x600/f8f8e8/e67e22?text=Retail+Unit+1',
-            'https://placehold.co/800x600/e8f8f8/e67e22?text=Retail+Unit+2',
-            'https://placehold.co/800x600/f8e8f8/e67e22?text=Retail+Unit+3',
-        ]);
+        if ($p3Created) {
+            $this->seedImages($p3->id, [
+                'https://placehold.co/800x600/f8f8e8/e67e22?text=Retail+Unit+1',
+                'https://placehold.co/800x600/e8f8f8/e67e22?text=Retail+Unit+2',
+                'https://placehold.co/800x600/f8e8f8/e67e22?text=Retail+Unit+3',
+            ]);
+        }
 
-        Property::query()->create([
+        $this->firstOrCreateProperty('Draft Listing (not public)', [
             'category_id' => $residential->id,
-            'title' => 'Draft Listing (not public)',
             'description' => 'Work in progress.',
             'price' => 100000,
             'listing_type' => ListingType::Sale,
@@ -142,6 +150,14 @@ class DatabaseSeeder extends Seeder
             'is_featured' => false,
             'sales_count' => 0,
         ]);
+    }
+
+    /** @return array{0: \App\Models\Property, 1: bool} */
+    private function firstOrCreateProperty(string $title, array $attributes): array
+    {
+        $property = Property::query()->firstOrCreate(['title' => $title], $attributes);
+
+        return [$property, $property->wasRecentlyCreated];
     }
 
     private function seedImages(int $propertyId, array $urls): void
