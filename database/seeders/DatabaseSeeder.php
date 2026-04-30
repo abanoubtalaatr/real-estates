@@ -150,6 +150,8 @@ class DatabaseSeeder extends Seeder
             'is_featured' => false,
             'sales_count' => 0,
         ]);
+
+        $this->backfillMissingImages();
     }
 
     /** @return array{0: \App\Models\Property, 1: bool} */
@@ -169,5 +171,26 @@ class DatabaseSeeder extends Seeder
                 'sort_order' => $index,
             ]);
         }
+    }
+
+    private function backfillMissingImages(): void
+    {
+        $placeholders = [
+            'https://placehold.co/800x600/e8f4f8/2c7be5?text=Property+Image+1',
+            'https://placehold.co/800x600/f0f8e8/2c7be5?text=Property+Image+2',
+            'https://placehold.co/800x600/f8f0e8/2c7be5?text=Property+Image+3',
+        ];
+
+        Property::query()
+            ->doesntHave('images')
+            ->each(function (Property $property) use ($placeholders): void {
+                foreach ($placeholders as $index => $url) {
+                    PropertyImage::query()->create([
+                        'property_id' => $property->id,
+                        'path' => $url,
+                        'sort_order' => $index,
+                    ]);
+                }
+            });
     }
 }
