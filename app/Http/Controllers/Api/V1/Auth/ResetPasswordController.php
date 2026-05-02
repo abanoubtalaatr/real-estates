@@ -6,29 +6,38 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\Auth\ResetPasswordRequest;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Password;
 use Symfony\Component\HttpFoundation\Response;
 
 class ResetPasswordController extends Controller
 {
     public function __invoke(ResetPasswordRequest $request): JsonResponse
     {
-        $status = Password::reset(
-            $request->only('email', 'password', 'password_confirmation', 'token'),
-            function (User $user, string $password): void {
-                $user->forceFill([
-                    'password' => Hash::make($password),
-                ])->save();
-            }
-        );
+        $record = DB::table('password_reset_otps')
+            ->where('email', $request->email)
+            ->first();
 
-        if ($status !== Password::PASSWORD_RESET) {
+        if (! $record || $record->otp !== $request->otp) {
             return response()->json([
-                'message' => __($status),
+                'message' => 'The OTP is invalid or has expired.',
             ], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
-        return response()->json(['message' => 'Password has been reset.']);
+        $user = User::where('email', $request->email)->first();
+
+        if (! $user) {
+            return response()->json([
+                'message' => 'No account found for this email.',
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
+        $user->forceFill([
+            'password' => Hash::make($request->password),
+        ])->save();
+
+        DB::table('password_reset_otps')->where('email', $request->email)->delete();
+
+        return response()->json(['message' => 'Password has been reset successfully.']);
     }
 }

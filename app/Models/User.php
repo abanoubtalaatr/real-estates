@@ -23,6 +23,7 @@ class User extends Authenticatable implements CanResetPasswordContract, Filament
     protected $fillable = [
         'name',
         'email',
+        'google_id',
         'password',
         'role',
         'location',

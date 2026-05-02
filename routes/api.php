@@ -9,12 +9,14 @@ use App\Http\Controllers\Api\V1\Admin\AdminUserController;
 use App\Http\Controllers\Api\V1\Auth\ChangePasswordController;
 use App\Http\Controllers\Api\V1\Auth\DeleteAccountController;
 use App\Http\Controllers\Api\V1\Auth\ForgotPasswordController;
+use App\Http\Controllers\Api\V1\Auth\GoogleLoginController;
 use App\Http\Controllers\Api\V1\Auth\LoginController;
 use App\Http\Controllers\Api\V1\Auth\LogoutController;
 use App\Http\Controllers\Api\V1\Auth\MeController;
 use App\Http\Controllers\Api\V1\Auth\ProfileController;
 use App\Http\Controllers\Api\V1\Auth\RegisterController;
 use App\Http\Controllers\Api\V1\Auth\ResetPasswordController;
+use App\Http\Controllers\Api\V1\Auth\VerifyOtpController;
 use App\Http\Controllers\Api\V1\Public\HomeController;
 use App\Http\Controllers\Api\V1\Public\PropertyController;
 use App\Http\Controllers\Api\V1\Public\PropertyReviewController;
@@ -38,7 +40,9 @@ Route::prefix('v1')->group(function (): void {
 
     Route::post('auth/register', RegisterController::class);
     Route::post('auth/login', LoginController::class);
+    Route::post('auth/google', GoogleLoginController::class);
     Route::post('auth/forgot-password', ForgotPasswordController::class);
+    Route::post('auth/verify-otp', VerifyOtpController::class);
     Route::post('auth/reset-password', ResetPasswordController::class);
 
     Route::middleware('auth:sanctum')->group(function (): void {

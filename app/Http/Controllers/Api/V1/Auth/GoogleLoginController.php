@@ -1,0 +1,93 @@
+<?php
+
+namespace App\Http\Controllers\Api\V1\Auth;
+
+use App\Enums\UserRole;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\V1\Auth\GoogleLoginRequest;
+use App\Http\Resources\Api\V1\UserResource;
+use App\Models\User;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Http;
+use Symfony\Component\HttpFoundation\Response;
+
+class GoogleLoginController extends Controller
+{
+    /**
+     * Flutter flow:
+     *   1. User taps "Sign in with Google" in Flutter
+     *   2. Flutter receives GoogleSignInAuthentication (via google_sign_in package)
+     *   3. Flutter sends: POST /api/v1/auth/google  { "id_token": "<idToken>" }
+     *   4. This controller verifies the token with Google and returns a Sanctum token
+     */
+    public function __invoke(GoogleLoginRequest $request): JsonResponse
+    {
+        $googleUser = $this->verifyGoogleToken($request->id_token);
+
+        if (! $googleUser || ($googleUser['email_verified'] ?? '') !== 'true') {
+            return response()->json([
+                'message' => 'Invalid or expired Google token.',
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
+        $user = $this->findOrCreateUser($googleUser);
+
+        if ($user->is_blocked) {
+            return response()->json([
+                'message' => 'Account is blocked.',
+            ], Response::HTTP_FORBIDDEN);
+        }
+
+        return response()->json([
+            'data' => [
+                'user'       => new UserResource($user),
+                'token'      => $user->createToken('google')->plainTextToken,
+                'token_type' => 'Bearer',
+            ],
+        ]);
+    }
+
+    private function findOrCreateUser(array $googleUser): User
+    {
+        $user = User::query()->firstOrCreate(
+            ['email' => $googleUser['email']],
+            [
+                'name'      => $googleUser['name'] ?? $googleUser['email'],
+                'google_id' => $googleUser['sub'],
+                'password'  => null,
+                'role'      => UserRole::User,
+            ]
+        );
+
+        if (! $user->google_id) {
+            $user->update(['google_id' => $googleUser['sub']]);
+        }
+
+        return $user;
+    }
+
+    /**
+     * Verifies the Google id_token and returns the payload or null on failure.
+     *
+     * @return array<string, string>|null
+     */
+    private function verifyGoogleToken(string $idToken): ?array
+    {
+        $response = Http::get('https://oauth2.googleapis.com/tokeninfo', [
+            'id_token' => $idToken,
+        ]);
+
+        if (! $response->successful()) {
+            return null;
+        }
+
+        $payload = $response->json();
+
+        // Ensure the token contains the required fields
+        if (empty($payload['sub']) || empty($payload['email'])) {
+            return null;
+        }
+
+        return $payload;
+    }
+}
