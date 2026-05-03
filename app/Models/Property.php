@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\ListingType;
 use App\Enums\PropertyStatus;
+use App\Support\Geo;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -12,6 +13,11 @@ use Illuminate\Support\Str;
 
 class Property extends Model
 {
+    /** Downtown Cairo (Tahrir); used for stored `distance_km` and seeding. */
+    public const REFERENCE_CENTER_LAT = 30.0444;
+
+    public const REFERENCE_CENTER_LNG = 31.2357;
+
     protected $fillable = [
         'category_id',
         'assigned_agent_id',
@@ -26,8 +32,10 @@ class Property extends Model
         'status',
         'is_featured',
         'sales_count',
+        'rate',
         'latitude',
         'longitude',
+        'distance_km',
         'address',
     ];
 
@@ -39,8 +47,10 @@ class Property extends Model
             'status' => PropertyStatus::class,
             'is_featured' => 'boolean',
             'sales_count' => 'integer',
+            'rate' => 'float',
             'latitude' => 'float',
             'longitude' => 'float',
+            'distance_km' => 'float',
             'bedrooms' => 'integer',
             'bathrooms' => 'integer',
             'kitchens' => 'integer',
@@ -53,6 +63,26 @@ class Property extends Model
             if (empty($property->slug)) {
                 $base = Str::slug($property->title);
                 $property->slug = $base.'-'.Str::lower(Str::random(6));
+            }
+        });
+
+        static::saving(function (Property $property): void {
+            if ($property->isDirty('distance_km')) {
+                return;
+            }
+            if ($property->latitude === null || $property->longitude === null) {
+                return;
+            }
+            if ($property->isDirty(['latitude', 'longitude']) || $property->distance_km === null) {
+                $property->distance_km = round(
+                    Geo::haversineKm(
+                        self::REFERENCE_CENTER_LAT,
+                        self::REFERENCE_CENTER_LNG,
+                        (float) $property->latitude,
+                        (float) $property->longitude
+                    ),
+                    3
+                );
             }
         });
     }

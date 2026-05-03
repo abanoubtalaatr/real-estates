@@ -83,12 +83,23 @@ class PropertyResource extends Resource
                     ->default(0)
                     ->disabled()
                     ->dehydrated(false),
+                Forms\Components\TextInput::make('rate')
+                    ->numeric()
+                    ->minValue(0)
+                    ->maxValue(5)
+                    ->step(0.01)
+                    ->label('Rate (0–5)')
+                    ->helperText('Average listing score for display.'),
                 Forms\Components\TextInput::make('latitude')
                     ->numeric()
                     ->label('Latitude (lat)'),
                 Forms\Components\TextInput::make('longitude')
                     ->numeric()
                     ->label('Longitude (lng)'),
+                Forms\Components\TextInput::make('distance_km')
+                    ->numeric()
+                    ->label('Distance (km)')
+                    ->helperText('Optional override; otherwise computed from coordinates vs downtown Cairo when saved.'),
                 Forms\Components\TextInput::make('address')
                     ->maxLength(500)
                     ->columnSpanFull(),
@@ -118,6 +129,10 @@ class PropertyResource extends Resource
                 Tables\Columns\TextColumn::make('sales_count')
                     ->numeric()
                     ->sortable(),
+                Tables\Columns\TextColumn::make('rate')
+                    ->numeric(decimalPlaces: 2)
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('latitude')
                     ->label('Lat')
                     ->numeric(decimalPlaces: 5)
@@ -125,6 +140,11 @@ class PropertyResource extends Resource
                 Tables\Columns\TextColumn::make('longitude')
                     ->label('Lng')
                     ->numeric(decimalPlaces: 5)
+                    ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('distance_km')
+                    ->label('Dist. km')
+                    ->numeric(decimalPlaces: 2)
+                    ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('updated_at')
                     ->dateTime()

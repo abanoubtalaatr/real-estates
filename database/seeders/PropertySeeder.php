@@ -8,11 +8,13 @@ use App\Models\Agent;
 use App\Models\Category;
 use App\Models\Property;
 use App\Models\PropertyImage;
+use App\Support\Geo;
 use Faker\Generator;
 use Illuminate\Database\Seeder;
 
 /**
- * Seeds properties with coordinates in Greater Cairo (WGS84).
+ * Seeds properties with coordinates in Greater Cairo (WGS84), each with a demo `rate` (0–5)
+ * and `distance_km` from downtown Cairo (Tahrir) via {@see Property::REFERENCE_CENTER_LAT}.
  * Uses firstOrCreate by title: run migrate:fresh --seed (or delete rows) to refresh coords on existing DBs.
  */
 class PropertySeeder extends Seeder
@@ -79,25 +81,10 @@ class PropertySeeder extends Seeder
     {
         PropertyImage::query()->where('path', 'like', '%placehold%')->delete();
 
-        $residential = Category::query()->firstOrCreate(
-            ['name' => 'Residential'],
-            ['description' => 'Apartments, family homes, and urban living', 'sort_order' => 1]
-        );
-
-        $commercial = Category::query()->firstOrCreate(
-            ['name' => 'Commercial'],
-            ['description' => 'Offices, retail, and mixed-use', 'sort_order' => 2]
-        );
-
-        $villas = Category::query()->firstOrCreate(
-            ['name' => 'Villas & Estates'],
-            ['description' => 'Detached villas, compounds, and large homes', 'sort_order' => 3]
-        );
-
-        $luxury = Category::query()->firstOrCreate(
-            ['name' => 'Penthouses & Luxury'],
-            ['description' => 'Top-floor units, duplexes, and high-end finishes', 'sort_order' => 4]
-        );
+        $rent = Category::query()->where('name', 'Rent')->firstOrFail();
+        $buy = Category::query()->where('name', 'Buy')->firstOrFail();
+        $house = Category::query()->where('name', 'House')->firstOrFail();
+        $appointment = Category::query()->where('name', 'Appointment')->firstOrFail();
 
         $agents = Agent::query()->orderBy('id')->get();
         $pickAgent = static function (int $i) use ($agents): ?int {
@@ -109,10 +96,10 @@ class PropertySeeder extends Seeder
         };
 
         $definitions = $this->propertyDefinitions(
-            $residential->id,
-            $commercial->id,
-            $villas->id,
-            $luxury->id,
+            $buy->id,
+            $rent->id,
+            $house->id,
+            $appointment->id,
             $pickAgent
         );
 
@@ -126,7 +113,7 @@ class PropertySeeder extends Seeder
             }
         }
 
-        $this->seedGeneratedBatch($residential, $commercial, $villas, $luxury, $pickAgent);
+        $this->seedGeneratedBatch($buy, $rent, $house, $appointment, $pickAgent);
         $this->backfillMissingImages();
     }
 
@@ -134,10 +121,10 @@ class PropertySeeder extends Seeder
      * @return array<int, array<string, mixed>>
      */
     private function propertyDefinitions(
-        int $residentialId,
-        int $commercialId,
-        int $villasId,
-        int $luxuryId,
+        int $buyId,
+        int $rentId,
+        int $houseId,
+        int $appointmentId,
         callable $pickAgent
     ): array {
         $at = fn (float $lat, float $lng): array => ['latitude' => $lat, 'longitude' => $lng];
@@ -145,7 +132,7 @@ class PropertySeeder extends Seeder
         return [
             [
                 'title' => 'Sunny Downtown Apartment',
-                'category_id' => $residentialId,
+                'category_id' => $buyId,
                 'assigned_agent_id' => $pickAgent(0),
                 'description' => 'Bright corner unit with floor-to-ceiling windows, open kitchen, and walk-in closets. Steps from cafés and metro.',
                 'price' => 325000,
@@ -162,7 +149,7 @@ class PropertySeeder extends Seeder
             ],
             [
                 'title' => 'Waterfront Rental',
-                'category_id' => $residentialId,
+                'category_id' => $rentId,
                 'assigned_agent_id' => $pickAgent(1),
                 'description' => 'Fully furnished rental with Nile outlooks, concierge, and gym access. Flexible lease terms.',
                 'price' => 2500,
@@ -179,7 +166,7 @@ class PropertySeeder extends Seeder
             ],
             [
                 'title' => 'Corner Retail Unit',
-                'category_id' => $commercialId,
+                'category_id' => $appointmentId,
                 'assigned_agent_id' => $pickAgent(2),
                 'description' => 'Ground-floor retail with dual street frontage, heavy foot traffic, and dedicated loading.',
                 'price' => 890000,
@@ -196,7 +183,7 @@ class PropertySeeder extends Seeder
             ],
             [
                 'title' => 'Draft Listing (not public)',
-                'category_id' => $residentialId,
+                'category_id' => $appointmentId,
                 'assigned_agent_id' => null,
                 'description' => 'Work in progress — photos and copy being finalized.',
                 'price' => 100000,
@@ -213,7 +200,7 @@ class PropertySeeder extends Seeder
             ],
             [
                 'title' => 'New Cairo Garden Villa — Type A',
-                'category_id' => $villasId,
+                'category_id' => $houseId,
                 'assigned_agent_id' => $pickAgent(3),
                 'description' => 'Standalone villa with private garden, maid’s room, and covered parking for three cars. Gated community with clubhouse.',
                 'price' => 18500000,
@@ -230,7 +217,7 @@ class PropertySeeder extends Seeder
             ],
             [
                 'title' => 'Compound Twin Villa — Corner',
-                'category_id' => $villasId,
+                'category_id' => $houseId,
                 'assigned_agent_id' => $pickAgent(4),
                 'description' => 'Twin villa on a corner plot with side garden, roof terrace, and smart-home wiring.',
                 'price' => 14200000,
@@ -247,7 +234,7 @@ class PropertySeeder extends Seeder
             ],
             [
                 'title' => 'Marina North Coast Villa (Summer)',
-                'category_id' => $villasId,
+                'category_id' => $rentId,
                 'assigned_agent_id' => $pickAgent(5),
                 'description' => 'Standalone villa with pool, outdoor kitchen, and split AC. (Seeded in Greater Cairo for demo maps.)',
                 'price' => 45000,
@@ -264,7 +251,7 @@ class PropertySeeder extends Seeder
             ],
             [
                 'title' => 'Zamalek Classic Penthouse',
-                'category_id' => $luxuryId,
+                'category_id' => $buyId,
                 'assigned_agent_id' => $pickAgent(6),
                 'description' => 'Duplex penthouse with wraparound terrace, marble finishes, and unobstructed Nile views.',
                 'price' => 52000000,
@@ -281,7 +268,7 @@ class PropertySeeder extends Seeder
             ],
             [
                 'title' => 'Heliopolis Art Deco Apartment',
-                'category_id' => $residentialId,
+                'category_id' => $buyId,
                 'assigned_agent_id' => $pickAgent(7),
                 'description' => 'High ceilings, original parquet, updated electrics. Quiet tree-lined street near Korba.',
                 'price' => 4100000,
@@ -298,7 +285,7 @@ class PropertySeeder extends Seeder
             ],
             [
                 'title' => '6th October Office Floor Plate',
-                'category_id' => $commercialId,
+                'category_id' => $appointmentId,
                 'assigned_agent_id' => $pickAgent(8),
                 'description' => 'Full floor open plan with raised flooring, backup generator slot, and reserved parking ratio.',
                 'price' => 12500000,
@@ -315,7 +302,7 @@ class PropertySeeder extends Seeder
             ],
             [
                 'title' => 'Maadi Degla Family Duplex',
-                'category_id' => $residentialId,
+                'category_id' => $buyId,
                 'assigned_agent_id' => $pickAgent(9),
                 'description' => 'Split-level duplex with garden access, two living rooms, and quiet Degla proximity.',
                 'price' => 9800000,
@@ -332,7 +319,7 @@ class PropertySeeder extends Seeder
             ],
             [
                 'title' => 'Smart Studio — Rehab City',
-                'category_id' => $residentialId,
+                'category_id' => $buyId,
                 'assigned_agent_id' => $pickAgent(10),
                 'description' => 'Compact studio with built-ins, ideal for remote work. Near Rehab gates and retail.',
                 'price' => 1850000,
@@ -349,7 +336,7 @@ class PropertySeeder extends Seeder
             ],
             [
                 'title' => 'Flagship Showroom — Ring Road',
-                'category_id' => $commercialId,
+                'category_id' => $appointmentId,
                 'assigned_agent_id' => $pickAgent(11),
                 'description' => 'Double-height showroom, glass facade, truck access. Suited to automotive or retail flagship.',
                 'price' => 22000000,
@@ -366,7 +353,7 @@ class PropertySeeder extends Seeder
             ],
             [
                 'title' => 'Katameya Heights Golf Villa',
-                'category_id' => $villasId,
+                'category_id' => $houseId,
                 'assigned_agent_id' => $pickAgent(12),
                 'description' => 'Golf-front villa with pool, outdoor lounge, and basement entertainment room.',
                 'price' => 35000000,
@@ -383,7 +370,7 @@ class PropertySeeder extends Seeder
             ],
             [
                 'title' => 'Giza Nile View Rental — Long Term',
-                'category_id' => $residentialId,
+                'category_id' => $rentId,
                 'assigned_agent_id' => $pickAgent(13),
                 'description' => 'Three-bedroom rental with partial Nile view, semi-furnished, pets negotiable.',
                 'price' => 18000,
@@ -400,7 +387,7 @@ class PropertySeeder extends Seeder
             ],
             [
                 'title' => 'New Administrative Capital Tower Floor',
-                'category_id' => $commercialId,
+                'category_id' => $appointmentId,
                 'assigned_agent_id' => $pickAgent(14),
                 'description' => 'Half-floor shell & core in a prime tower; district cooling, high-speed lifts. (Seeded in Greater Cairo for demo maps.)',
                 'price' => 48000000,
@@ -417,7 +404,7 @@ class PropertySeeder extends Seeder
             ],
             [
                 'title' => 'Garden City Diplomatic Apartment',
-                'category_id' => $luxuryId,
+                'category_id' => $buyId,
                 'assigned_agent_id' => $pickAgent(15),
                 'description' => 'Large reception, herringbone floors, embassy district calm.',
                 'price' => 28500000,
@@ -434,7 +421,7 @@ class PropertySeeder extends Seeder
             ],
             [
                 'title' => 'October Logistics Warehouse Shell',
-                'category_id' => $commercialId,
+                'category_id' => $appointmentId,
                 'assigned_agent_id' => $pickAgent(16),
                 'description' => 'Clear-span warehouse, high bay, three dock doors, yard for trailers.',
                 'price' => 42000000,
@@ -451,7 +438,7 @@ class PropertySeeder extends Seeder
             ],
             [
                 'title' => 'El Gouna Lagoon Villa',
-                'category_id' => $villasId,
+                'category_id' => $houseId,
                 'assigned_agent_id' => $pickAgent(17),
                 'description' => 'Lagoon-style compound villa with pool and outdoor dining. (Seeded in Greater Cairo for demo maps.)',
                 'price' => 22500000,
@@ -468,7 +455,7 @@ class PropertySeeder extends Seeder
             ],
             [
                 'title' => 'Nasr City Furnished Short Stay',
-                'category_id' => $residentialId,
+                'category_id' => $rentId,
                 'assigned_agent_id' => $pickAgent(18),
                 'description' => 'Two-bedroom turnkey unit near hub malls; ideal corporate stays.',
                 'price' => 9500,
@@ -485,7 +472,7 @@ class PropertySeeder extends Seeder
             ],
             [
                 'title' => 'Alexandria Seafront Condo',
-                'category_id' => $luxuryId,
+                'category_id' => $buyId,
                 'assigned_agent_id' => $pickAgent(19),
                 'description' => 'Sea-view style luxury condo with wide balcony and basement parking. (Seeded in Greater Cairo for demo maps.)',
                 'price' => 7800000,
@@ -517,18 +504,18 @@ class PropertySeeder extends Seeder
     }
 
     private function seedGeneratedBatch(
-        Category $residential,
-        Category $commercial,
-        Category $villas,
-        Category $luxury,
+        Category $buy,
+        Category $rent,
+        Category $house,
+        Category $appointment,
         callable $pickAgent
     ): void {
         $faker = fake('en_US');
         $templates = [
-            ['cat' => $villas, 'style' => 'villa', 'beds' => [4, 7], 'baths' => [3, 6], 'sale' => [9_000_000, 45_000_000], 'rent' => [25_000, 85_000]],
-            ['cat' => $residential, 'style' => 'apartment', 'beds' => [1, 4], 'baths' => [1, 3], 'sale' => [1_200_000, 9_000_000], 'rent' => [4_000, 22_000]],
-            ['cat' => $commercial, 'style' => 'commercial', 'beds' => [0, 0], 'baths' => [1, 4], 'sale' => [6_000_000, 35_000_000], 'rent' => [15_000, 120_000]],
-            ['cat' => $luxury, 'style' => 'luxury', 'beds' => [3, 5], 'baths' => [3, 5], 'sale' => [12_000_000, 65_000_000], 'rent' => [18_000, 45_000]],
+            ['style' => 'villa', 'beds' => [4, 7], 'baths' => [3, 6], 'sale' => [9_000_000, 45_000_000], 'rent' => [25_000, 85_000]],
+            ['style' => 'apartment', 'beds' => [1, 4], 'baths' => [1, 3], 'sale' => [1_200_000, 9_000_000], 'rent' => [4_000, 22_000]],
+            ['style' => 'commercial', 'beds' => [0, 0], 'baths' => [1, 4], 'sale' => [6_000_000, 35_000_000], 'rent' => [15_000, 120_000]],
+            ['style' => 'luxury', 'beds' => [3, 5], 'baths' => [3, 5], 'sale' => [12_000_000, 65_000_000], 'rent' => [18_000, 45_000]],
         ];
 
         for ($i = 0; $i < 36; $i++) {
@@ -540,6 +527,13 @@ class PropertySeeder extends Seeder
                 ? $faker->numberBetween($t['sale'][0], $t['sale'][1])
                 : $faker->numberBetween($t['rent'][0], $t['rent'][1]);
 
+            $category = match ($t['style']) {
+                'villa' => $listing === ListingType::Rent ? $rent : $house,
+                'commercial' => $appointment,
+                'luxury' => $listing === ListingType::Rent ? $rent : $buy,
+                default => $listing === ListingType::Rent ? $rent : $buy,
+            };
+
             $title = sprintf(
                 'Catalog Listing #%04d — %s %s',
                 2100 + $i,
@@ -549,7 +543,7 @@ class PropertySeeder extends Seeder
             $geo = $this->randomCoordinatesInGreaterCairo($faker);
 
             $attributes = [
-                'category_id' => $t['cat']->id,
+                'category_id' => $category->id,
                 'assigned_agent_id' => $pickAgent(20 + $i),
                 'description' => $faker->paragraphs(3, true),
                 'price' => $price,
@@ -588,6 +582,23 @@ class PropertySeeder extends Seeder
     /** @return array{0: Property, 1: bool} */
     private function firstOrCreateProperty(string $title, array $attributes): array
     {
+        if (! array_key_exists('rate', $attributes)) {
+            $attributes['rate'] = round(min(5.0, 3.2 + ((abs(crc32($title)) % 19) * 0.1)), 2);
+        }
+
+        if (isset($attributes['latitude'], $attributes['longitude'])
+            && $attributes['latitude'] !== null && $attributes['longitude'] !== null) {
+            $attributes['distance_km'] = round(
+                Geo::haversineKm(
+                    Property::REFERENCE_CENTER_LAT,
+                    Property::REFERENCE_CENTER_LNG,
+                    (float) $attributes['latitude'],
+                    (float) $attributes['longitude']
+                ),
+                3
+            );
+        }
+
         $property = Property::query()->firstOrCreate(['title' => $title], $attributes);
 
         return [$property, $property->wasRecentlyCreated];

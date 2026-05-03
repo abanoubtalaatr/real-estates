@@ -85,6 +85,9 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        $this->call(PropertySeeder::class);
+        $this->call([
+            CategorySeeder::class,
+            PropertySeeder::class,
+        ]);
     }
 }
