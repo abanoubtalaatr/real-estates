@@ -9,6 +9,7 @@ use App\Http\Resources\Api\V1\UserResource;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\Response;
 
 class GoogleLoginController extends Controller
@@ -54,7 +55,9 @@ class GoogleLoginController extends Controller
             [
                 'name'      => $googleUser['name'] ?? $googleUser['email'],
                 'google_id' => $googleUser['sub'],
-                'password'  => null,
+                // Random secret: column is NOT NULL; User's "hashed" cast hashes once.
+                // Email/password login stays disabled until the user sets a password (forgot-password flow).
+                'password'  => Str::password(48),
                 'role'      => UserRole::User,
             ]
         );
@@ -68,6 +71,10 @@ class GoogleLoginController extends Controller
 
     /**
      * Verifies the Google id_token and returns the payload or null on failure.
+     *
+     * Google's tokeninfo endpoint validates the token signature, expiry, and
+     * issuer automatically. We additionally verify the audience (aud) matches
+     * our app's client ID when GOOGLE_CLIENT_ID is set in .env.
      *
      * @return array<string, string>|null
      */
@@ -83,8 +90,13 @@ class GoogleLoginController extends Controller
 
         $payload = $response->json();
 
-        // Ensure the token contains the required fields
         if (empty($payload['sub']) || empty($payload['email'])) {
+            return null;
+        }
+
+        // When GOOGLE_CLIENT_ID is configured, verify the token belongs to our app
+        $clientId = config('services.google.client_id');
+        if ($clientId && ($payload['aud'] ?? '') !== $clientId) {
             return null;
         }
 
