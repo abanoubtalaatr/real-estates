@@ -26,6 +26,8 @@ class PropertyResource extends JsonResource
             'sales_count' => $this->sales_count,
             'latitude' => $this->latitude,
             'longitude' => $this->longitude,
+            'lat' => $this->latitude,
+            'lng' => $this->longitude,
             'address' => $this->address,
             'distance_km' => $this->when(isset($this->distance_km), (float) $this->distance_km),
             'category' => new CategoryResource($this->whenLoaded('category')),

@@ -85,10 +85,10 @@ class PropertyResource extends Resource
                     ->dehydrated(false),
                 Forms\Components\TextInput::make('latitude')
                     ->numeric()
-                    ->label('Latitude'),
+                    ->label('Latitude (lat)'),
                 Forms\Components\TextInput::make('longitude')
                     ->numeric()
-                    ->label('Longitude'),
+                    ->label('Longitude (lng)'),
                 Forms\Components\TextInput::make('address')
                     ->maxLength(500)
                     ->columnSpanFull(),
@@ -118,6 +118,14 @@ class PropertyResource extends Resource
                 Tables\Columns\TextColumn::make('sales_count')
                     ->numeric()
                     ->sortable(),
+                Tables\Columns\TextColumn::make('latitude')
+                    ->label('Lat')
+                    ->numeric(decimalPlaces: 5)
+                    ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('longitude')
+                    ->label('Lng')
+                    ->numeric(decimalPlaces: 5)
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()

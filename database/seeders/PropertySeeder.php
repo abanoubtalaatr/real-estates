@@ -8,10 +8,24 @@ use App\Models\Agent;
 use App\Models\Category;
 use App\Models\Property;
 use App\Models\PropertyImage;
+use Faker\Generator;
 use Illuminate\Database\Seeder;
 
+/**
+ * Seeds properties with coordinates in Greater Cairo (WGS84).
+ * Uses firstOrCreate by title: run migrate:fresh --seed (or delete rows) to refresh coords on existing DBs.
+ */
 class PropertySeeder extends Seeder
 {
+    /** Greater Cairo & western Giza / 6th October (WGS84). */
+    private const CAIRO_LAT_MIN = 29.90;
+
+    private const CAIRO_LAT_MAX = 30.22;
+
+    private const CAIRO_LNG_MIN = 30.88;
+
+    private const CAIRO_LNG_MAX = 31.55;
+
     /**
      * Hotlinked Unsplash CDN URLs (buildings, villas, interiors, offices).
      * Kept short to stay within default string(255) for property_images.path.
@@ -126,7 +140,7 @@ class PropertySeeder extends Seeder
         int $luxuryId,
         callable $pickAgent
     ): array {
-        $cairo = fn (float $lat, float $lng): array => ['latitude' => $lat, 'longitude' => $lng];
+        $at = fn (float $lat, float $lng): array => ['latitude' => $lat, 'longitude' => $lng];
 
         return [
             [
@@ -143,7 +157,7 @@ class PropertySeeder extends Seeder
                 'is_featured' => true,
                 'sales_count' => 3,
                 'address' => 'Downtown Cairo — Talaat Harb',
-                ...$cairo(30.0444, 31.2357),
+                ...$at(30.0444, 31.2357),
                 'image_style' => 'apartment',
             ],
             [
@@ -160,7 +174,7 @@ class PropertySeeder extends Seeder
                 'is_featured' => false,
                 'sales_count' => 12,
                 'address' => 'Zamalek — waterfront strip',
-                ...$cairo(30.052, 31.24),
+                ...$at(30.052, 31.24),
                 'image_style' => 'apartment',
             ],
             [
@@ -177,7 +191,7 @@ class PropertySeeder extends Seeder
                 'is_featured' => true,
                 'sales_count' => 1,
                 'address' => 'Maadi — Road 9 retail corridor',
-                ...$cairo(29.96, 31.25),
+                ...$at(29.96, 31.25),
                 'image_style' => 'commercial',
             ],
             [
@@ -193,9 +207,8 @@ class PropertySeeder extends Seeder
                 'status' => PropertyStatus::Draft,
                 'is_featured' => false,
                 'sales_count' => 0,
-                'address' => null,
-                'latitude' => null,
-                'longitude' => null,
+                'address' => 'Downtown Cairo — draft location',
+                ...$at(30.0458, 31.2362),
                 'image_style' => 'apartment',
             ],
             [
@@ -212,7 +225,7 @@ class PropertySeeder extends Seeder
                 'is_featured' => true,
                 'sales_count' => 7,
                 'address' => 'New Cairo — Fifth Settlement',
-                ...$cairo(30.02, 31.48),
+                ...$at(30.02, 31.48),
                 'image_style' => 'villa',
             ],
             [
@@ -229,14 +242,14 @@ class PropertySeeder extends Seeder
                 'is_featured' => false,
                 'sales_count' => 2,
                 'address' => 'Sheikh Zayed — West Cairo',
-                ...$cairo(30.07, 31.02),
+                ...$at(30.07, 31.02),
                 'image_style' => 'villa',
             ],
             [
                 'title' => 'Marina North Coast Villa (Summer)',
                 'category_id' => $villasId,
                 'assigned_agent_id' => $pickAgent(5),
-                'description' => 'Beach-close villa with pool, outdoor kitchen, and split AC. Ideal summer lease; winter negotiable.',
+                'description' => 'Standalone villa with pool, outdoor kitchen, and split AC. (Seeded in Greater Cairo for demo maps.)',
                 'price' => 45000,
                 'listing_type' => ListingType::Rent,
                 'bedrooms' => 4,
@@ -245,8 +258,8 @@ class PropertySeeder extends Seeder
                 'status' => PropertyStatus::Published,
                 'is_featured' => true,
                 'sales_count' => 28,
-                'address' => 'North Coast — Marina strip',
-                ...$cairo(30.85, 28.95),
+                'address' => 'New Cairo — Fifth Settlement (compound)',
+                ...$at(30.018, 31.505),
                 'image_style' => 'villa',
             ],
             [
@@ -263,7 +276,7 @@ class PropertySeeder extends Seeder
                 'is_featured' => true,
                 'sales_count' => 0,
                 'address' => 'Zamalek — 26th July axis',
-                ...$cairo(30.062, 31.222),
+                ...$at(30.062, 31.222),
                 'image_style' => 'luxury',
             ],
             [
@@ -280,7 +293,7 @@ class PropertySeeder extends Seeder
                 'is_featured' => false,
                 'sales_count' => 5,
                 'address' => 'Heliopolis — Korba',
-                ...$cairo(30.09, 31.32),
+                ...$at(30.09, 31.32),
                 'image_style' => 'apartment',
             ],
             [
@@ -297,7 +310,7 @@ class PropertySeeder extends Seeder
                 'is_featured' => false,
                 'sales_count' => 0,
                 'address' => '6th October — Central Axis',
-                ...$cairo(29.97, 30.94),
+                ...$at(29.97, 30.94),
                 'image_style' => 'commercial',
             ],
             [
@@ -314,7 +327,7 @@ class PropertySeeder extends Seeder
                 'is_featured' => true,
                 'sales_count' => 4,
                 'address' => 'Maadi — Degla',
-                ...$cairo(29.96, 31.26),
+                ...$at(29.96, 31.26),
                 'image_style' => 'apartment',
             ],
             [
@@ -331,7 +344,7 @@ class PropertySeeder extends Seeder
                 'is_featured' => false,
                 'sales_count' => 11,
                 'address' => 'New Cairo — Rehab City',
-                ...$cairo(30.051, 31.491),
+                ...$at(30.051, 31.491),
                 'image_style' => 'apartment',
             ],
             [
@@ -348,7 +361,7 @@ class PropertySeeder extends Seeder
                 'is_featured' => true,
                 'sales_count' => 0,
                 'address' => 'South Ring Road — showroom strip',
-                ...$cairo(30.01, 31.38),
+                ...$at(30.01, 31.38),
                 'image_style' => 'commercial',
             ],
             [
@@ -365,7 +378,7 @@ class PropertySeeder extends Seeder
                 'is_featured' => true,
                 'sales_count' => 2,
                 'address' => 'New Cairo — Katameya Heights',
-                ...$cairo(30.005, 31.422),
+                ...$at(30.005, 31.422),
                 'image_style' => 'villa',
             ],
             [
@@ -382,14 +395,14 @@ class PropertySeeder extends Seeder
                 'is_featured' => false,
                 'sales_count' => 9,
                 'address' => 'Giza — Dokki approach',
-                ...$cairo(30.038, 31.21),
+                ...$at(30.038, 31.21),
                 'image_style' => 'apartment',
             ],
             [
                 'title' => 'New Administrative Capital Tower Floor',
                 'category_id' => $commercialId,
                 'assigned_agent_id' => $pickAgent(14),
-                'description' => 'Half-floor shell & core in a prime tower; district cooling, high-speed lifts.',
+                'description' => 'Half-floor shell & core in a prime tower; district cooling, high-speed lifts. (Seeded in Greater Cairo for demo maps.)',
                 'price' => 48000000,
                 'listing_type' => ListingType::Sale,
                 'bedrooms' => 0,
@@ -398,8 +411,8 @@ class PropertySeeder extends Seeder
                 'status' => PropertyStatus::Published,
                 'is_featured' => true,
                 'sales_count' => 0,
-                'address' => 'New Capital — CBD',
-                ...$cairo(29.98, 31.73),
+                'address' => 'New Cairo — South Teseen axis',
+                ...$at(30.012, 31.438),
                 'image_style' => 'commercial',
             ],
             [
@@ -416,7 +429,7 @@ class PropertySeeder extends Seeder
                 'is_featured' => false,
                 'sales_count' => 1,
                 'address' => 'Garden City',
-                ...$cairo(30.035, 31.231),
+                ...$at(30.035, 31.231),
                 'image_style' => 'luxury',
             ],
             [
@@ -433,14 +446,14 @@ class PropertySeeder extends Seeder
                 'is_featured' => false,
                 'sales_count' => 0,
                 'address' => '6th October — industrial zone',
-                ...$cairo(29.93, 30.89),
+                ...$at(29.93, 30.89),
                 'image_style' => 'commercial',
             ],
             [
                 'title' => 'El Gouna Lagoon Villa',
                 'category_id' => $villasId,
                 'assigned_agent_id' => $pickAgent(17),
-                'description' => 'Lagoon-front villa with private dock option, pool, and outdoor dining.',
+                'description' => 'Lagoon-style compound villa with pool and outdoor dining. (Seeded in Greater Cairo for demo maps.)',
                 'price' => 22500000,
                 'listing_type' => ListingType::Sale,
                 'bedrooms' => 4,
@@ -449,8 +462,8 @@ class PropertySeeder extends Seeder
                 'status' => PropertyStatus::Published,
                 'is_featured' => true,
                 'sales_count' => 3,
-                'address' => 'El Gouna — lagoon district',
-                ...$cairo(27.39, 33.68),
+                'address' => 'New Cairo — Choueifat area',
+                ...$at(30.028, 31.462),
                 'image_style' => 'villa',
             ],
             [
@@ -467,14 +480,14 @@ class PropertySeeder extends Seeder
                 'is_featured' => false,
                 'sales_count' => 33,
                 'address' => 'Nasr City — Olympic axis',
-                ...$cairo(30.051, 31.34),
+                ...$at(30.051, 31.34),
                 'image_style' => 'apartment',
             ],
             [
                 'title' => 'Alexandria Seafront Condo',
                 'category_id' => $luxuryId,
                 'assigned_agent_id' => $pickAgent(19),
-                'description' => 'Sea-view condo with wide balcony, storm shutters, and basement parking.',
+                'description' => 'Sea-view style luxury condo with wide balcony and basement parking. (Seeded in Greater Cairo for demo maps.)',
                 'price' => 7800000,
                 'listing_type' => ListingType::Sale,
                 'bedrooms' => 3,
@@ -483,10 +496,23 @@ class PropertySeeder extends Seeder
                 'status' => PropertyStatus::Published,
                 'is_featured' => false,
                 'sales_count' => 6,
-                'address' => 'Alexandria — Stanley',
-                ...$cairo(31.22, 29.91),
+                'address' => 'Cairo — Abbasiya',
+                ...$at(30.072, 31.284),
                 'image_style' => 'luxury',
             ],
+        ];
+    }
+
+    /**
+     * Random WGS84 point inside Greater Cairo (incl. 6th October / Sheikh Zayed).
+     *
+     * @return array{latitude: float, longitude: float}
+     */
+    private function randomCoordinatesInGreaterCairo(Generator $faker): array
+    {
+        return [
+            'latitude' => $faker->randomFloat(7, self::CAIRO_LAT_MIN, self::CAIRO_LAT_MAX),
+            'longitude' => $faker->randomFloat(7, self::CAIRO_LNG_MIN, self::CAIRO_LNG_MAX),
         ];
     }
 
@@ -520,8 +546,7 @@ class PropertySeeder extends Seeder
                 $faker->city(),
                 $faker->randomElement(['Residence', 'Tower', 'Plaza', 'Gardens', 'Heights'])
             );
-            $lat = $faker->randomFloat(7, 27.5, 31.3);
-            $lng = $faker->randomFloat(7, 28.5, 33.8);
+            $geo = $this->randomCoordinatesInGreaterCairo($faker);
 
             $attributes = [
                 'category_id' => $t['cat']->id,
@@ -535,9 +560,21 @@ class PropertySeeder extends Seeder
                 'status' => ($i % 17 === 0) ? PropertyStatus::Draft : PropertyStatus::Published,
                 'is_featured' => $i % 9 === 0,
                 'sales_count' => $faker->numberBetween(0, 40),
-                'latitude' => $lat,
-                'longitude' => $lng,
-                'address' => $faker->streetAddress().', '.$faker->randomElement(['Cairo', 'Giza', 'Alexandria', 'New Cairo', '6th October']),
+                'latitude' => $geo['latitude'],
+                'longitude' => $geo['longitude'],
+                'address' => $faker->streetAddress().', '.$faker->randomElement([
+                    'Downtown Cairo',
+                    'Zamalek',
+                    'Maadi',
+                    'New Cairo',
+                    'Heliopolis',
+                    'Nasr City',
+                    '6th October City',
+                    'Sheikh Zayed',
+                    'Garden City',
+                    'Dokki',
+                    'Tagamo\'a',
+                ]),
             ];
 
             [$property, $created] = $this->firstOrCreateProperty($title, $attributes);
