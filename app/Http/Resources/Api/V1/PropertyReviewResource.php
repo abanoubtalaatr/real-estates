@@ -16,7 +16,20 @@ class PropertyReviewResource extends JsonResource
             'rating' => $this->rating,
             'comment' => $this->comment,
             'created_at' => $this->created_at,
-            'user' => new UserResource($this->whenLoaded('user')),
+            'user' => $this->whenLoaded('user', function () use ($request): array {
+                $user = (new UserResource($this->resource->user))->toArray($request);
+                $user['image'] = $this->userImageUrl();
+
+                return $user;
+            }),
         ];
+    }
+
+    private function userImageUrl(): string
+    {
+        $email = strtolower(trim((string) $this->resource->user?->email));
+        $hash = md5($email);
+
+        return "https://www.gravatar.com/avatar/{$hash}?d=identicon&s=200";
     }
 }
