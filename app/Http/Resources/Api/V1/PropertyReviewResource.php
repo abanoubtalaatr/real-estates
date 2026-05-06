@@ -14,7 +14,7 @@ class PropertyReviewResource extends JsonResource
         return [
             'id' => $this->id,
             'rating' => $this->rating,
-            'comment' => $this->comment,
+            'comment' => $this->whenNotNull($this->comment),
             'created_at' => $this->created_at,
             'user' => $this->whenLoaded('user', function () use ($request): array {
                 $user = (new UserResource($this->resource->user))->toArray($request);

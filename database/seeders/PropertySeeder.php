@@ -29,52 +29,52 @@ class PropertySeeder extends Seeder
     private const CAIRO_LNG_MAX = 31.55;
 
     /**
-     * Hotlinked Unsplash CDN URLs (buildings, villas, interiors, offices).
+     * Hotlinked Unsplash CDN URLs (hotels, resorts, suites, lobbies).
      * Kept short to stay within default string(255) for property_images.path.
      */
     private const IMAGE_VILLA = [
-        'https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=1000&q=80',
-        'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1000&q=80',
-        'https://images.unsplash.com/photo-1600566753190-17fb0baa4869?w=1000&q=80',
-        'https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=1000&q=80',
-        'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=1000&q=80',
-        'https://images.unsplash.com/photo-1600566752355-35792bedcfea?w=1000&q=80',
-        'https://images.unsplash.com/photo-1600573472592-401b489a3cdc?w=1000&q=80',
-        'https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?w=1000&q=80',
+        'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1000&q=80',
+        'https://images.unsplash.com/photo-1564501049412-61c2a3083791?w=1000&q=80',
+        'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=1000&q=80',
+        'https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?w=1000&q=80',
+        'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=1000&q=80',
+        'https://images.unsplash.com/photo-1455587734955-081b22074882?w=1000&q=80',
+        'https://images.unsplash.com/photo-1445019980597-93fa8acb246c?w=1000&q=80',
+        'https://images.unsplash.com/photo-1596436889106-be35e843f974?w=1000&q=80',
     ];
 
     private const IMAGE_APARTMENT = [
-        'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=1000&q=80',
-        'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=1000&q=80',
-        'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=1000&q=80',
-        'https://images.unsplash.com/photo-1554995207-c18c203602cb?w=1000&q=80',
-        'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=1000&q=80',
-        'https://images.unsplash.com/photo-1536376072261-38c75010e6c9?w=1000&q=80',
-        'https://images.unsplash.com/photo-1560185893-a55cbc8c57e8?w=1000&q=80',
-        'https://images.unsplash.com/photo-1567767292278-a4f21aa2d36e?w=1000&q=80',
-        'https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=1000&q=80',
-        'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=1000&q=80',
+        'https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=1000&q=80',
+        'https://images.unsplash.com/photo-1618773928121-c32242e63f39?w=1000&q=80',
+        'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=1000&q=80',
+        'https://images.unsplash.com/photo-1629079447777-1e605162dc8d?w=1000&q=80',
+        'https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=1000&q=80',
+        'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=1000&q=80',
+        'https://images.unsplash.com/photo-1582719508461-905c673771fd?w=1000&q=80',
+        'https://images.unsplash.com/photo-1590073242678-70ee3fc28e8e?w=1000&q=80',
+        'https://images.unsplash.com/photo-1512918728675-ed5a9ecdebfd?w=1000&q=80',
+        'https://images.unsplash.com/photo-1553444836-bc6c8d340d56?w=1000&q=80',
     ];
 
     private const IMAGE_COMMERCIAL = [
-        'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1000&q=80',
-        'https://images.unsplash.com/photo-1497366216548-37526070297c?w=1000&q=80',
-        'https://images.unsplash.com/photo-1497366754035-f200968a6e72?w=1000&q=80',
-        'https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=1000&q=80',
-        'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=1000&q=80',
-        'https://images.unsplash.com/photo-1464938050520-ef2270bb8ce8?w=1000&q=80',
-        'https://images.unsplash.com/photo-1497366811353-6870744d04b2?w=1000&q=80',
-        'https://images.unsplash.com/photo-1489515217757-5fd1be406fef?w=1000&q=80',
+        'https://images.unsplash.com/photo-1600011689032-8b628b8a8747?w=1000&q=80',
+        'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?w=1000&q=80',
+        'https://images.unsplash.com/photo-1568084680786-a84f91d1153c?w=1000&q=80',
+        'https://images.unsplash.com/photo-1606402179428-a57976d71fa4?w=1000&q=80',
+        'https://images.unsplash.com/photo-1551016890-2a3aba5c8aa0?w=1000&q=80',
+        'https://images.unsplash.com/photo-1562778612-e1e0cda9915c?w=1000&q=80',
+        'https://images.unsplash.com/photo-1593642632559-0c6d3fc62b89?w=1000&q=80',
+        'https://images.unsplash.com/photo-1584132967334-10e028bd69f7?w=1000&q=80',
     ];
 
-    /** Luxury / penthouse — interiors & views */
+    /** Luxury hotel / penthouse suite — interiors & views */
     private const IMAGE_LUXURY = [
-        'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=1000&q=80',
-        'https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?w=1000&q=80',
-        'https://images.unsplash.com/photo-1600607687644-c7171b42498b?w=1000&q=80',
-        'https://images.unsplash.com/photo-1600566752355-35792bedcfea?w=1000&q=80',
-        'https://images.unsplash.com/photo-1600047509358-9dc75507daeb?w=1000&q=80',
-        'https://images.unsplash.com/photo-1600573472550-8090b5e0745e?w=1000&q=80',
+        'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=1000&q=80',
+        'https://images.unsplash.com/photo-1618773928121-c32242e63f39?w=1000&q=80',
+        'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1000&q=80',
+        'https://images.unsplash.com/photo-1590073242678-70ee3fc28e8e?w=1000&q=80',
+        'https://images.unsplash.com/photo-1564501049412-61c2a3083791?w=1000&q=80',
+        'https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?w=1000&q=80',
     ];
 
     public function run(): void
